@@ -1,0 +1,171 @@
+EIGRP - Enhenced Interior Gateway Routing Protocol.
+----------------------------------------------------
+
+-> EIGRP is also called Hybrid Routing Protocol.
+-> It is called IGP > Adv. distance vector routing protocol which is more powerfull as comparision to RIP.
+-> It work within an ASN(Autonomous System No.)
+-> Organization has its ASN number which is assigned by IANA.
+-> EIGRP support VLSM and Summery of IP address.
+-> EIGRP denoted by 'D' in Routing table.
+-> EIGRP uses 'metric' to select best route in network.
+-> Metric is calculated based on the 'K-Value', by default on cisco router the K-value is K1+K3 runs.
+
+K-Value
+---------------
+K1 - Bandwidth
+K2 - Load
+K3 - Delay
+K4 - Relialbility
+K5 - MTU
+
+1. How to enable EIGRP on Cisco Routers.
+
+Before enable EIGRP insure your IP address configured on interfaces (recommended).
+
+#Enable EIGRP 
+------------------------
+R1(Config)# router eigrp <ASN>
+R1(Config)# router eigrp 100
+
+Ensure each and every router must be configured with the same ASN, otherwise EIGRP won't be in effect.
+
+#Configure Router ID (Optional)
+------------------------------------
+After enable EIGRP you can configure the Router ID, if you does not configure it has other option to select Router ID automatically.
+
+Router ID
+	1. Highest physical address of interfaces.
+	2. Highest Loopback address of Interfaces.
+	3. Manually configure the router id.
+
+Manually configure the Router ID
+--------------------------------------
+R1(Router-config)# Router-ID <32-bit router id>
+R1(router-config)# Router-id 1.1.1.1
+
+Note : If you configure the manual router-id then other option will be not considered becuase manually router-id has highest preferences.
+
+#Network Command - Configured advertised network.
+----------------------------------------------------
+-> 3rd step is configure the networks which you want to advertised in your  network.
+-> when you configure the EIGRP advertised those network with others connected hops within the same ASN.
+
+<Syntex> Network <network_address><wildcard_mask>
+
+R1(router-config)# network 203.0.11.0 0.0.0.255
+R1(router-config)# network 192.168.1.0 0.0.0.255
+
+
+#EIGRP Multicast Address 
+--------------------------
+EIGRP uses multicast address 224.0.0.10 to adverties 'Hello/Update' packet to others hops.
+
+#EIGRP Tables 
+--------------------------
+	1. Neighbor Table 
+	2. Topology Table 
+	3. Routing Table
+
+
+#EIGRP - Neighbor Table 
+------------------------
+-> EIGRP create neighborship table with exchange the 'Hello' Packet.
+-> EIGRP multicast 'hello' packet on multicast address 224.0.0.10 to all directly connected link.
+-> Hello timer packet has 5 second, and hold timer has 15 second.
+
+Hello - neighborship parameters 
+--------------------------------
+-> K-Value must be same on each router if change, otherwise by default it has K1+K3 (Bandwidth + Delay).
+
+If both parameters are match then the hello packet will be exchange with directly connected router to form a neighborship table.
+
+1. Once R1 get response of the 'hello' packet then R1 send an 'empty-update' packet to R2(Suppose we have 2 routers).
+
+2. Empty-Update has only the Sequence number then R2 will response also an empty update response to R1.
+
+3. Now R1 will share the full database information to R2 with the unicat update, this update packet has full information of the networks.
+
+Note only first time full databases shared by R1 in full update(Unicast) packet, after the whenever the R1 send any update packet it has 
+only partial update (Multicast) packet which refer only changes in topology.
+
+4. Table fields : Handle, Neighbor-Address, connected interface, Holddown time, Uptime, SRTT, RTO, Q Count and Swq. Number.
+
+
+#EIGRP - Topology Table
+-------------------------
+-> Topology table has complete information of entire network topogy, all availble routes to reach one destination to other.
+
+-> In the topology table metric is calculated, as we know EIGRP uses metric to select the best route.
+-> Metric is calculated based on the K-Value.
+
+Metric
+--------
+
+Formula : (10^7 / B.W + total delay / 10) * 256
+
+or
+
+Formula : (10^7 / Least B.W + Total Delay /10) * 256
+
+There are two types of metric in EIGRP.
+	1. Classic Mode (32-Bit) - [ K-Value : K1, K2, K3, K4, K5]
+		A. Fixed Metric 
+		B. Variable Metric
+
+	2. Named Mode (64-Bit) - [K-Value : K1, K2, K3, K4, K5, K6]
+		
+	-> Name mode metric has one extra K-Value which is called 'Extended Metric'.
+
+Table Field : Code (Active, passive), Prefix, Feasible Distance/Advertised Distance, Connected Interface.
+
+#EIGRP - Routing Table
+-------------------------
+-> Contain all best routes from EIGRP topology table and other routing protocols.
+
+Table Field : Protocol code, prefix, Metric, Advertiesed Distance, Next Hop.
+
+
+R1#show ip eigrp neighbors
+R1#show ip eigrp topology
+R1#show ip eigrp topology all-links
+
+
+#EIGRP - DUAL Algorithm
+-----------------------------
+-> EIGRP (Enhanced Interior Gateway Routing Protocol) is a routing protocol that uses the DUAL (Diffusing Update Algorithm) algorithm to calculate the best path and maintain routing information in the routing table.
+
+-> The DUAL algorithm is a loop-free routing protocol that provides fast convergence and efficient use of network bandwidth. It calculates the shortest path to a destination based on the lowest metric value, which is a combination of bandwidth, delay, reliability, load, and MTU (maximum transmission unit) of the path.
+
+-> DUAL also maintains multiple feasible successors for a destination, which ensures that there is always an alternative path available in case of a failure in the primary path. This results in fast convergence and reduced downtime in the network.
+
+Important Facts about DUAL Algorithm
+----------------------------------------
+
+1. Feasible Distance
+2. Advertised Distance (Reported Distance)
+3. Successor 
+4. Feasible Successor
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
